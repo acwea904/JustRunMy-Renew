@@ -83,11 +83,18 @@ jobs:
           path: "*.png"
           retention-days: 3
 
-      - name: 🧹 清理旧的工作流运行记录
-        uses: Mattraks/delete-workflow-runs@v2
-        with:
-          token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          delete_workflow_pattern: ${{ github.workflow }}
-          retain_days: 0
-          keep_minimum_runs: 3
+      - name: 🧹 清理旧的运行记录
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "正在查询旧的运行记录..."
+          run_ids=$(gh run list --workflow "${{ github.workflow }}" --limit 50 --json databaseId --jq '.[].databaseId' | \
+                    grep -v "${{ github.run_id }}" | \
+                    tail -n +3)
+
+          for id in $run_ids; do
+            echo "正在删除运行记录 ID: $id"
+            gh run delete "$id" || true
+          done
+          echo "✅ 清理完成，仅保留最近运行记录。"
