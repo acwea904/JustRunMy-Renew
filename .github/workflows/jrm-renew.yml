@@ -23,7 +23,7 @@ jobs:
           python-version: '3.11'
 
       - name: 🛡️ 启动 GOST 代理转发
-        if: ${{ env.GOST_PROXY != '' }}
+        if: ${{ secrets.GOST_PROXY != '' }}
         env:
           GOST_PROXY: ${{ secrets.GOST_PROXY }}
         run: |
@@ -41,7 +41,7 @@ jobs:
           echo "USE_PROXY=true" >> $GITHUB_ENV
 
       - name: 🌐 直连模式标记
-        if: ${{ env.GOST_PROXY == '' }}
+        if: ${{ secrets.GOST_PROXY == '' }}
         run: echo "USE_PROXY=false" >> $GITHUB_ENV
 
       - name: 🛠️ 安装系统依赖
@@ -64,9 +64,8 @@ jobs:
           JUSTRUNMY_EMAIL: ${{ secrets.JUSTRUNMY_EMAIL }}
           JUSTRUNMY_PASSWORD: ${{ secrets.JUSTRUNMY_PASSWORD }}
           GOST_PROXY:        ${{ secrets.GOST_PROXY }}
-          TG_CHAT_ID:            ${{ secrets.TG_CHAT_ID }}
-          TG_BOT_TOKEN:            ${{ secrets.TG_BOT_TOKEN }}
-          
+          TG_CHAT_ID:        ${{ secrets.TG_CHAT_ID }}
+          TG_BOT_TOKEN:      ${{ secrets.TG_BOT_TOKEN }}
         run: |
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
             python justrunmy_renew.py
