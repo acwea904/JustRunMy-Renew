@@ -64,7 +64,7 @@ jobs:
           JUSTRUNMY_EMAIL: ${{ secrets.JUSTRUNMY_EMAIL }}
           JUSTRUNMY_PASSWORD: ${{ secrets.JUSTRUNMY_PASSWORD }}
           GOST_PROXY:        ${{ secrets.GOST_PROXY }}
-          TG_BOT:            ${{ secrets.TG_BOT }}
+          TG_CHAT_ID:            ${{ secrets.TG_CHAT_ID }}
           TG_BOT_TOKEN:            ${{ secrets.TG_BOT_TOKEN }}
           
         run: |
