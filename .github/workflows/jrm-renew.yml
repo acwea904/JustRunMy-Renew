@@ -61,7 +61,8 @@ jobs:
 
       - name: 🚀 执行续期
         env:
-          JUSTRUNMY_ACCOUNT: ${{ secrets.JUSTRUNMY_ACCOUNT }}
+          JUSTRUNMY_EMAIL: ${{ secrets.JUSTRUNMY_EMAIL }}
+          JUSTRUNMY_PASSWORD: ${{ secrets.JUSTRUNMY_PASSWORD }}
           GOST_PROXY:        ${{ secrets.GOST_PROXY }}
           TG_BOT:            ${{ secrets.TG_BOT }}
         run: |
