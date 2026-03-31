@@ -10,6 +10,9 @@ jobs:
     permissions:
       contents: write
       actions: write
+    # 👇 核心修复：在 Job 级别用环境变量作为判断跳板，绕过 if 不能直接读 secrets 的限制
+    env:
+      HAS_PROXY: ${{ secrets.GOST_PROXY != '' }} 
     steps:
       - name: 📥 拉取私库代码
         uses: actions/checkout@v4
@@ -23,7 +26,7 @@ jobs:
           python-version: '3.11'
 
       - name: 🛡️ 启动 GOST 代理转发
-        if: ${{ secrets.GOST_PROXY != '' }}
+        if: env.HAS_PROXY == 'true'             # 👈 修改：判断环境变量
         env:
           GOST_PROXY: ${{ secrets.GOST_PROXY }}
         run: |
@@ -41,7 +44,7 @@ jobs:
           echo "USE_PROXY=true" >> $GITHUB_ENV
 
       - name: 🌐 直连模式标记
-        if: ${{ secrets.GOST_PROXY == '' }}
+        if: env.HAS_PROXY != 'true'             # 👈 修改：判断环境变量
         run: echo "USE_PROXY=false" >> $GITHUB_ENV
 
       - name: 🛠️ 安装系统依赖
