@@ -10,9 +10,6 @@ jobs:
     permissions:
       contents: write
       actions: write
-    # 👇 核心修复：在 Job 级别用环境变量作为判断跳板，绕过 if 不能直接读 secrets 的限制
-    env:
-      HAS_PROXY: ${{ secrets.GOST_PROXY != '' }} 
     steps:
       - name: 📥 拉取私库代码
         uses: actions/checkout@v4
@@ -26,10 +23,15 @@ jobs:
           python-version: '3.11'
 
       - name: 🛡️ 启动 GOST 代理转发
-        if: env.HAS_PROXY == 'true'             # 👈 修改：判断环境变量
         env:
           GOST_PROXY: ${{ secrets.GOST_PROXY }}
         run: |
+          # 👇 核心判断：如果 GOST_PROXY 为空，则直接跳过此步骤
+          if [ -z "$GOST_PROXY" ]; then
+            echo "ℹ️ 未配置 GOST_PROXY，跳过代理启动。"
+            exit 0
+          fi
+          
           VERSION=$(curl -s https://api.github.com/repos/ginuerzh/gost/releases/latest \
             | grep '"tag_name"' | cut -d'"' -f4 | tr -d 'v')
           echo "📦 GOST 版本: $VERSION"
@@ -41,11 +43,6 @@ jobs:
           echo "✅ GOST 已启动，测试连通性..."
           curl -s -x http://127.0.0.1:8080 https://api.ipify.org \
             | sed 's/\([0-9]*\.[0-9]*\.[0-9]*\.\)[0-9]*/\1**/g'
-          echo "USE_PROXY=true" >> $GITHUB_ENV
-
-      - name: 🌐 直连模式标记
-        if: env.HAS_PROXY != 'true'             # 👈 修改：判断环境变量
-        run: echo "USE_PROXY=false" >> $GITHUB_ENV
 
       - name: 🛠️ 安装系统依赖
         run: |
@@ -66,7 +63,6 @@ jobs:
         env:
           JUSTRUNMY_EMAIL: ${{ secrets.JUSTRUNMY_EMAIL }}
           JUSTRUNMY_PASSWORD: ${{ secrets.JUSTRUNMY_PASSWORD }}
-          GOST_PROXY:        ${{ secrets.GOST_PROXY }}
           TG_CHAT_ID:        ${{ secrets.TG_CHAT_ID }}
           TG_BOT_TOKEN:      ${{ secrets.TG_BOT_TOKEN }}
         run: |
