@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 🛡️ 启动 GOST 代理转发 (动态判断)
+      - name: 🛡️ 启动 GOST 代理转发
         env:
           PROXY_SECRET: ${{ secrets.GOST_PROXY }}
         run: |
